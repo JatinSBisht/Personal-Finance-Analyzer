@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard | Smart Finance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">Smart Finance</a>
+        <div class="navbar-nav flex-row gap-3">
+            <a class="nav-link" th:href="@{/transactions}">Transactions</a>
+            <a class="nav-link" th:href="@{/reports/monthly}">Reports</a>
+            <form th:action="@{/logout}" method="post"><button class="btn btn-outline-secondary btn-sm">Logout</button></form>
+        </div>
+    </div>
+</nav>
+<main class="container-fluid px-4 py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <p class="text-muted mb-1">Dashboard</p>
+            <h1 class="h3 fw-bold mb-0" th:text="'Hello, ' + ${user.fullName}">Hello</h1>
+        </div>
+        <a class="btn btn-primary" th:href="@{/transactions/new}">Add Transaction</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="metric"><span>Total Income</span><strong th:text="${#numbers.formatCurrency(summary.totalIncome)}">$0</strong></div></div>
+        <div class="col-md-3"><div class="metric"><span>Total Expense</span><strong th:text="${#numbers.formatCurrency(summary.totalExpense)}">$0</strong></div></div>
+        <div class="col-md-3"><div class="metric"><span>Current Balance</span><strong th:text="${#numbers.formatCurrency(summary.currentBalance)}">$0</strong></div></div>
+        <div class="col-md-3"><div class="metric"><span>Next Month Prediction</span><strong th:text="${#numbers.formatCurrency(summary.predictedNextMonthExpense)}">$0</strong></div></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <section class="panel">
+                <h2 class="h5 fw-bold mb-3">Monthly Expenses</h2>
+                <canvas id="monthlyChart" height="130"></canvas>
+            </section>
+        </div>
+        <div class="col-lg-5">
+            <section class="panel">
+                <h2 class="h5 fw-bold mb-3">Expense Categories</h2>
+                <canvas id="categoryChart" height="180"></canvas>
+            </section>
+        </div>
+        <div class="col-12">
+            <section class="panel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 fw-bold mb-0">Recent Transactions</h2>
+                    <a th:href="@{/transactions}">View all</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Date</th><th>Title</th><th>Category</th><th>Type</th><th class="text-end">Amount</th></tr></thead>
+                        <tbody>
+                        <tr th:each="txn : ${recentTransactions}">
+                            <td th:text="${txn.transactionDate}"></td>
+                            <td th:text="${txn.title}"></td>
+                            <td th:text="${txn.category.name}"></td>
+                            <td><span class="badge" th:classappend="${txn.type.name() == 'INCOME'} ? ' text-bg-success' : ' text-bg-danger'" th:text="${txn.type}"></span></td>
+                            <td class="text-end" th:text="${#numbers.formatCurrency(txn.amount)}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(recentTransactions)}"><td colspan="5" class="text-center text-muted py-4">No transactions yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:inline="javascript">
+    window.categoryData = /*[[${summary.expenseByCategory}]]*/ [];
+    window.monthlyData = /*[[${summary.monthlyExpenses}]]*/ [];
+</script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
