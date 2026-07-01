@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Budget | Smart Finance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+</head>
+<body>
+<main class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold mb-0">Monthly Budget</h1>
+        <a th:href="@{/dashboard}">Back to dashboard</a>
+    </div>
+
+    <section class="panel mb-4">
+        <form class="row g-3 align-items-end" method="get" th:action="@{/budget}">
+            <div class="col-md-4">
+                <label class="form-label">Month</label>
+                <input class="form-control" name="month" type="month" th:value="${month}">
+            </div>
+            <div class="col-md-2"><button class="btn btn-outline-dark" type="submit">View</button></div>
+        </form>
+    </section>
+
+    <section class="panel mb-4">
+        <h2 class="h5 fw-bold mb-3">Set / Update Limit</h2>
+        <form class="row g-3 align-items-end" method="post" th:action="@{/budget}">
+            <input type="hidden" name="month" th:value="${month}">
+            <div class="col-md-4">
+                <label class="form-label">Spending limit for this month</label>
+                <input class="form-control" name="limitAmount" type="number" step="0.01" min="0"
+                       th:value="${status.limitAmount}" required>
+            </div>
+            <div class="col-md-2"><button class="btn btn-dark" type="submit">Save</button></div>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2 class="h5 fw-bold mb-3">Status for <span th:text="${status.yearMonth}"></span></h2>
+
+        <div th:if="${status.overBudget}" class="alert alert-danger" role="alert">
+            You are over budget by
+            <strong th:text="${#numbers.formatCurrency(status.spentAmount - status.limitAmount)}"></strong>.
+        </div>
+        <div th:unless="${status.overBudget}" class="alert alert-success" role="alert">
+            You're within budget.
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="metric"><span>Limit</span><strong th:text="${#numbers.formatCurrency(status.limitAmount)}"></strong></div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric"><span>Spent</span><strong th:text="${#numbers.formatCurrency(status.spentAmount)}"></strong></div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric"><span>Remaining</span><strong th:text="${#numbers.formatCurrency(status.remainingAmount)}"></strong></div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric"><span>% Used</span><strong th:text="${#numbers.formatDecimal(status.percentUsed, 1, 1)} + '%'"></strong></div>
+            </div>
+        </div>
+
+        <div class="progress mt-4" style="height: 1.5rem;">
+            <div class="progress-bar"
+                 th:classappend="${status.overBudget} ? 'bg-danger' : 'bg-success'"
+                 role="progressbar"
+                 th:style="'width: ' + (${status.percentUsed} > 100 ? 100 : ${status.percentUsed}) + '%'"
+                 th:text="${#numbers.formatDecimal(status.percentUsed, 1, 1)} + '%'">
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
