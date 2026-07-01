@@ -1,2 +1,0 @@
-# No external packages required. The prediction script uses a pure Python
-# linear regression implementation so it works reliably on fresh machines.
